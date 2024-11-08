@@ -12,57 +12,136 @@
             <h1 class="title">Wordle</h1>
         </div>
 
-        <div>
-            <input type="text" class="inputBoxes" id="0" maxlength="1" />
-            <input type="text" class="inputBoxes" id="1" maxlength="1" />
-            <input type="text" class="inputBoxes" id="2" maxlength="1" />
-            <input type="text" class="inputBoxes" id="3" maxlength="1" />
-            <input type="text" class="inputBoxes" id="4" maxlength="1" />
+        <div class="attempts">
+    
+            <div class="attempt-row">
+                <input type="text" class="inputBoxes" maxlength="1" />
+                <input type="text" class="inputBoxes" maxlength="1" />
+                <input type="text" class="inputBoxes" maxlength="1" />
+                <input type="text" class="inputBoxes" maxlength="1" />
+                <input type="text" class="inputBoxes" maxlength="1" />
+            </div>
+            <div class="attempt-row">
+                <input type="text" class="inputBoxes" maxlength="1" />
+                <input type="text" class="inputBoxes" maxlength="1" />
+                <input type="text" class="inputBoxes" maxlength="1" />
+                <input type="text" class="inputBoxes" maxlength="1" />
+                <input type="text" class="inputBoxes" maxlength="1" />
+            </div>
+            <div class="attempt-row">
+                <input type="text" class="inputBoxes" maxlength="1" />
+                <input type="text" class="inputBoxes" maxlength="1" />
+                <input type="text" class="inputBoxes" maxlength="1" />
+                <input type="text" class="inputBoxes" maxlength="1" />
+                <input type="text" class="inputBoxes" maxlength="1" />
+            </div>
+            <div class="attempt-row">
+                <input type="text" class="inputBoxes" maxlength="1" />
+                <input type="text" class="inputBoxes" maxlength="1" />
+                <input type="text" class="inputBoxes" maxlength="1" />
+                <input type="text" class="inputBoxes" maxlength="1" />
+                <input type="text" class="inputBoxes" maxlength="1" />
+            </div>
+            <div class="attempt-row">
+                <input type="text" class="inputBoxes" maxlength="1" />
+                <input type="text" class="inputBoxes" maxlength="1" />
+                <input type="text" class="inputBoxes" maxlength="1" />
+                <input type="text" class="inputBoxes" maxlength="1" />
+                <input type="text" class="inputBoxes" maxlength="1" />
+            </div>
+            <div class="attempt-row">
+                <input type="text" class="inputBoxes" maxlength="1" />
+                <input type="text" class="inputBoxes" maxlength="1" />
+                <input type="text" class="inputBoxes" maxlength="1" />
+                <input type="text" class="inputBoxes" maxlength="1" />
+                <input type="text" class="inputBoxes" maxlength="1" />
+            </div>
         </div>
 
-       
 
-        <button class="submitButton">Submit</button>
+        <p id="hidden-word-display"></p>
     </div>
 
     <script>
-        const hiddenWord = "ivory";
-        let elts = document.getElementsByClassName("inputBoxes");
+        let hiddenWord = "";
+        const rows = document.querySelectorAll(".attempt-row");
+        let currentAttempt = 0;
 
-        Array.from(elts).forEach(function (elt, index) {
-            elt.addEventListener("keyup", function (event) {
-                if (elt.value.length === 1 && index < elts.length - 1) {
-                    elts[index + 1].focus();
-                }
+      
+        function fetchWordOfTheDay() {
+            fetch('words.json')
+                .then(response => response.json())
+                .then(words => {
+                    const now = new Date();
+                    const start = new Date(now.getFullYear(), 0, 0);
+                    const diff = now - start;
+                    const oneDay = 1000 * 60 * 60 * 24;
+                    const dayOfYear = Math.floor(diff / oneDay);
+
+                    const wordIndex = dayOfYear % words.length;
+                    hiddenWord = words[wordIndex];
+                    console.log("Word of the Day:", hiddenWord);
+
+              
+                    document.getElementById("hidden-word-display").textContent = `Secret Word (for testing): ${hiddenWord}`;
+                })
+                .catch(error => console.error('Error loading words:', error));
+        }
+
+        
+        function setupRowFocus(row) {
+            const inputs = row.querySelectorAll(".inputBoxes");
+            inputs.forEach((input, index) => {
+                input.addEventListener("keyup", () => {
+                    if (input.value.length === 1 && index < inputs.length - 1) {
+                        setTimeout(() => inputs[index + 1].focus(), 10); 
+                    }
+                });
             });
-        });
+        }
 
-        let submitButton = document.querySelector(".submitButton");
-        submitButton.addEventListener("click", function () {
-            const userWord = Array.from(elts).map(input => input.value).join("");
-            console.log("User word:", userWord);
+        
+        function checkAttempt() {
+            const inputs = rows[currentAttempt].querySelectorAll(".inputBoxes");
+            const userWord = Array.from(inputs).map(input => input.value).join("").toLowerCase();
 
             if (userWord === hiddenWord) {
-                console.log("You won");
+                alert("Congratulations! You guessed the correct word!");
+                Array.from(inputs).forEach(input => input.style.backgroundColor = "lightgreen");
             } else {
-                console.log("Incorrect word");
-            }
-        });
+                Array.from(inputs).forEach((input, i) => {
+                    if (userWord[i] === hiddenWord[i]) {
+                        input.style.backgroundColor = "lightgreen"; 
+                    } else if (hiddenWord.includes(userWord[i])) {
+                        input.style.backgroundColor = "yellow"; 
+                    } else {
+                        input.style.backgroundColor = "lightgrey"; 
+                    }
+                });
 
+                
+                currentAttempt++;
+                if (currentAttempt < rows.length) {
+                    rows[currentAttempt].querySelector(".inputBoxes").focus();
+                } else {
+                    alert("Game Over! You've used all attempts.");
+                }
+            }
+        }
+
+        
+        rows.forEach(row => setupRowFocus(row));
+
+        
         document.addEventListener("keydown", function (event) {
             if (event.key === "Enter") {
                 event.preventDefault();
-                const userWord = Array.from(elts).map(input => input.value).join("");
-                console.log("User word:", userWord);
-
-                if (userWord === hiddenWord) {
-                    console.log("You won");
-                    alert("You won")
-                } else {
-                    console.log("Incorrect word");
-                }
+                checkAttempt();
             }
         });
+
+        
+        window.addEventListener("load", fetchWordOfTheDay);
     </script>
 </body>
 
