@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Wordle</title>
+    <link rel='stylesheet' type='text/css' href='wordle.css'>
+</head>
+
+<body>
+    <div class="wrapper-div">
+        <div>
+            <h1 class="title">Wordle</h1>
+        </div>
+
+        <div>
+            <input type="text" class="inputBoxes" id="0" maxlength="1" />
+            <input type="text" class="inputBoxes" id="1" maxlength="1" />
+            <input type="text" class="inputBoxes" id="2" maxlength="1" />
+            <input type="text" class="inputBoxes" id="3" maxlength="1" />
+            <input type="text" class="inputBoxes" id="4" maxlength="1" />
+        </div>
+
+       
+
+        <button class="submitButton">Submit</button>
+    </div>
+
+    <script>
+        const hiddenWord = "ivory";
+        let elts = document.getElementsByClassName("inputBoxes");
+
+        Array.from(elts).forEach(function (elt, index) {
+            elt.addEventListener("keyup", function (event) {
+                if (elt.value.length === 1 && index < elts.length - 1) {
+                    elts[index + 1].focus();
+                }
+            });
+        });
+
+        let submitButton = document.querySelector(".submitButton");
+        submitButton.addEventListener("click", function () {
+            const userWord = Array.from(elts).map(input => input.value).join("");
+            console.log("User word:", userWord);
+
+            if (userWord === hiddenWord) {
+                console.log("You won");
+            } else {
+                console.log("Incorrect word");
+            }
+        });
+
+        document.addEventListener("keydown", function (event) {
+            if (event.key === "Enter") {
+                event.preventDefault();
+                const userWord = Array.from(elts).map(input => input.value).join("");
+                console.log("User word:", userWord);
+
+                if (userWord === hiddenWord) {
+                    console.log("You won");
+                    alert("You won")
+                } else {
+                    console.log("Incorrect word");
+                }
+            }
+        });
+    </script>
+</body>
+
+</html>
